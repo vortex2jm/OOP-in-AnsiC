@@ -727,6 +727,10 @@ static void destroi_ (Numero_t *  me)
 
 
 
+
+
+
+
 //===================================IMPLEMENTAÇÃO DO ATALHO ??????????==============//
 
 

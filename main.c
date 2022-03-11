@@ -78,6 +78,12 @@ int main ()
 
 
 
+
+
+
+   
+
+
    //IMPLEMENTAÇÃO DOS ATALHOS================!!!!!!!!!!!!!!
    double a,b;
    Get(ptC1,&a,&b);
@@ -89,8 +95,7 @@ int main ()
    //=========================================================//
 
 
-
-
+   
 
 	ptC1->Metodo->destroi (ptC1);
 	ptC2->Metodo->destroi (ptC2);

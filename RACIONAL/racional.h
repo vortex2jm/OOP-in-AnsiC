@@ -70,8 +70,9 @@ struct Racional_Interface_st{
 
     double (*float_value) (const Racional_pt const rac);
 
-    Racional_pt (*inverse) (const Racional_pt const rac);
+    Racional_pt (*invert) (Racional_pt const rac);
 
+    Racional_pt (*irreduceble) (Racional_pt const rac);
 };
 
 //TYPING INTERFACE STRUCTURE

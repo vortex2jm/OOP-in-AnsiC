@@ -149,6 +149,10 @@ MeuComplexo_pt Complexo_constroi (MeuComplexo_pt  me,
 
 
 
+
+
+
+
 //==========================TENTANDO IMPLEMENTAR ATALHOS=====================//
 
 
