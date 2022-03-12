@@ -1,4 +1,5 @@
 NAME_PROGRAM = final.exe
+NAME_PROGRAM_2 = prog
 CC = gcc
 FLAGS = -lm -pedantic -Wall 
 C_FILES = $(wildcard *.c)
@@ -22,6 +23,7 @@ create_executable:
 	@ echo "\033[1;32m"
 	@ echo "Creating executable..."
 	@ $(CC) -o $(NAME_PROGRAM) $(O_FILES)
+	@ $(CC) -o $(NAME_PROGRAM_2) $(O_FILES)
 	@ echo "\033[0m"
 
 run: 
@@ -41,5 +43,5 @@ valgrind:
 clean: 
 	@ echo "\033[1;35m"
 	@ echo "Removing temporary files ..."
-	@ rm -rf $(NAME_PROGRAM) $(O_FILES)
+	@ rm -rf $(NAME_PROGRAM) $(NAME_PROGRAM_2) $(O_FILES)
 	@ echo "\033[0m"

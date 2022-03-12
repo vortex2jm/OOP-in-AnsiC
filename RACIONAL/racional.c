@@ -80,15 +80,13 @@ static double Float_Value_ (const Racional_t * const rac);
 
 static Racional_t * Invert_ (Racional_t * const rac);
 
-
+static Racional_t * Irreduceble_ (Racional_t * const rac);
 
 //========================================================================================//
 
 //========================ADDITIONAL FUNCTIONS PROTOTYPE=============================//
 
 static long int Mdc(long int m,long int n); //euclides algorithm
-
-static Racional_t * Irreduceble_ (Racional_t * const rac);
 
 
 //================CONSTRUCTOR METHOD IMPLEMENTATION=========================//

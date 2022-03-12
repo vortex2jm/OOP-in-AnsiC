@@ -55,6 +55,8 @@ int main(){
     rac1->module->destruct(rac1);
     rac2->module->destruct(rac2);
     rac3->module->destruct(rac3);
+    rac4->module->destruct(rac4);
+    rac5->module->destruct(rac5);
 
     return 0;
 }
