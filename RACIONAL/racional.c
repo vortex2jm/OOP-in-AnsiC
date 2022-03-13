@@ -9,79 +9,46 @@
 //===========SUPER CLASS METHODS PROTOTYPES=========WILL BE OVERWRITED============//
 
 static Numero_t * copy_ (const Numero_t * const num);
-
 static Numero_t * assign_ (const Numero_t * const num1,  Numero_t * const num2);
-
 static Numero_t * add_ (const Numero_t * const num1, const Numero_t * const num2, Numero_t * const res);
-
 static Numero_t * sub_ (const Numero_t * const num1, const Numero_t * const num2, Numero_t * const res);
-
 static Numero_t * mult_ (const Numero_t * const num1, const Numero_t * const num2, Numero_t * const res);
-
 static Numero_t * div_ (const Numero_t * const num1, const Numero_t * const num2, Numero_t * const res);
-
 static Numero_t * ac_add_ (Numero_t * const num1, const Numero_t * const num2);
-
 static Numero_t * ac_sub_ (Numero_t * const num1, const Numero_t * const num2);
-
 static Numero_t * ac_mult_ (Numero_t * const num1, const Numero_t * const num2);
-
 static Numero_t * ac_div_ (Numero_t * const num1, const Numero_t * const num2);
-
 static int compare_ (const Numero_t * const num1, const Numero_t * const num2);
-
 static char * print_ (const Numero_t * const num);
-
 static void destruct_ (Numero_t * num);
 
 //======================OVERWRITE METHODS PROTOTYPES======================//
 
 static Racional_t * Copy_ (const Racional_t * const rac);
-
 static Racional_t * Assign_ (const Racional_t * const rac1, Racional_t * const rac2);
-
 static Racional_t * Add_ (const Racional_t * const rac1, const Racional_t * const rac2, Racional_t * const res);
-
 static Racional_t * Sub_ (const Racional_t * const rac1, const Racional_t * const rac2, Racional_t * const res);
-
 static Racional_t * Mult_ (const Racional_t * const rac1, const Racional_t * const rac2, Racional_t * const res);
-
 static Racional_t * Div_ (const Racional_t * const rac1, const Racional_t * const rac2, Racional_t * const res);
-
 static Racional_t * Ac_Add_ (Racional_t * const rac1, const Racional_t * const rac2);
-
 static Racional_t * Ac_Sub_ (Racional_t * const rac1, const Racional_t * const rac2);
-
 static Racional_t * Ac_Mult_ (Racional_t * const rac1, const Racional_t * const rac2);
-
 static Racional_t * Ac_Div_ (Racional_t * const rac1, const Racional_t * const rac2);
-
 static int Compare_ (const Racional_t * const rac1, const Racional_t * const rac2);
-
 static char * Print_ (const Racional_t * const rac1);
-
 static void Destruct_ (Racional_t * rac);
 
 //=====================EXCLUSIVE METHODS PROTOTYPES=======================================//
 
 static void Get_ (const Racional_t * const rac, long int * num, long int * den);
-
 static void Set_ (Racional_t * const rac, long int num, long int den);
-
 static long int Get_Num_ (const Racional_t * const rac);
-
 static void Set_Num_ (Racional_t * const rac, long int num);
-
 static long int Get_Den_ (const Racional_t * const rac);
-
 static void Set_Den_ (Racional_t * const rac, long int den);
-
 static double Float_Value_ (const Racional_t * const rac);
-
 static Racional_t * Invert_ (Racional_t * const rac);
-
 static Racional_t * Irreduceble_ (Racional_t * const rac);
-
 //========================================================================================//
 
 //========================ADDITIONAL FUNCTIONS PROTOTYPE=============================//
@@ -490,20 +457,3 @@ static void destruct_ (Numero_t * num){
     free(((Racional_t *)num)->value);
     free((Numero_t *)num);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
