@@ -47,7 +47,7 @@ static void Destruct_ (Matrix_t * matrix);
 
 static Matrix_t * Resize_ (Matrix_t * matrix, unsigned int tam[2]);
 static Matrix_t * Ones_ (Matrix_t * matrix, unsigned int tam[2]); //VERIFICAR A PRESENÇA DO CONST NO PONTEIRO
-static Matrix_t * Identity_ (Matrix_t * matrix, unsigned int tam[2]);
+static Matrix_t * Identity_ (Matrix_t * matrix, unsigned int tam);
 static Matrix_t * Scale_mult_ (Matrix_t * const matrix, double num);
 static Matrix_t * Dot_ (const Matrix_t * const matrix1, const Matrix_t * const matrix2);
 static Matrix_t * Transpose_ (Matrix_t * matrix); //verificar const no ponteiro
@@ -65,6 +65,7 @@ static double Min_value_ (const Matrix_t * const matrix);
 static void EqualizeMatrix(double ** matrix1, double ** matrix2, unsigned int tam[2]);
 static void EqualizeTam(unsigned int tam1[2], unsigned int tam2[2]);
 static void Put(double ** matrix, unsigned int tam[2], double value);
+static int EqualSize(unsigned int tam1[2], unsigned int tam2[2]);
 
 
 //====================================CONSTRUCTOR IMPLEMENTATION=================================//
@@ -211,12 +212,23 @@ static void Put(double ** matrix, unsigned int tam[2], double value){
     }
 }
 
+static int EqualSize(unsigned int tam1[2], unsigned int tam2[2]){
+
+    if((tam1[0] == tam2[0]) && (tam1[1] == tam2[1])) return 1;
+
+    return 0;
+}
+
 
 //======================================IMPLEMENTING EXCLUSIVE METHODS===============================//
 
 static Matrix_t * Resize_ (Matrix_t * matrix, unsigned int tam[2]){
 
-    //DO IT AGAIN
+    //if sizes are similar, returns same matrix
+
+    if(EqualSize(matrix->tam,tam)) return matrix;
+
+    //=====else resize=============================================//
 
     //reallocating
     matrix->matrix = realloc(matrix->matrix,sizeof(double *) * tam[0]);
@@ -224,12 +236,48 @@ static Matrix_t * Resize_ (Matrix_t * matrix, unsigned int tam[2]){
         matrix->matrix[x] = realloc(matrix->matrix[x],sizeof(double) * tam[1]);
     }
     
+    int diffRow = tam[0] - matrix->tam[0];
+    int diffColumn = tam[1] - matrix->tam[1];
+
+    //putting zeros in new allocated spaces
+
+    if(diffRow > 0){
+
+        for(int x = matrix->tam[0];x<tam[0];x++){
+            for(int y=0;y<tam[1];y++){
+
+                matrix->matrix[x][y] = 0;
+            }
+        }
+    }
+
+    if(diffColumn > 0){
+
+        for(int y = matrix->tam[1]; y<tam[1];y++){
+            for(int x=0;x<tam[0];x++){
+
+                matrix->matrix[x][y] = 0;
+            }
+        }
+    }
+
+    EqualizeTam(matrix->tam,tam);
+
     return matrix;
 }
-
-
 //=====================================================================================//
+
 static Matrix_t * Ones_ (Matrix_t * matrix, unsigned int tam[2]){
+
+    //if sizes are equal, only put ones 
+
+    if(EqualSize(matrix->tam,tam)){
+
+        Put(matrix->matrix,matrix->tam,1);
+        return matrix;
+    }
+
+    //========else, realloc==================================//
 
     //Reallocating
     matrix->matrix = realloc(matrix->matrix,sizeof(double *) * tam[0]);
@@ -241,5 +289,145 @@ static Matrix_t * Ones_ (Matrix_t * matrix, unsigned int tam[2]){
     Put(matrix->matrix,matrix->tam,1);
 
     return matrix;
+}
+//=============================================================================================//
+
+static Matrix_t * Identity_ (Matrix_t * matrix, unsigned int tam){
+
+    if((matrix->tam[0] == tam) && (matrix->tam[1] == tam)){
+
+        Put(matrix->matrix,matrix->tam,0);
+        for(int x=0;x<tam;x++){
+
+            matrix->matrix[x][x] = 1;
+        }
+
+        return matrix;
+    }
+
+    //=======================================================// 
+
+    matrix->matrix = realloc(matrix->matrix,sizeof(double *) * tam);
+    for(int x=0;x<tam;x++){
+        matrix->matrix[x] = realloc(matrix->matrix[x],sizeof(double) * tam);
+    }
+
+    unsigned int newTam[2] = {tam,tam};
+
+    EqualizeTam(newTam,matrix->tam);
+    Put(matrix->matrix,matrix->tam,0);
+
+    for(int x=0;x<tam;x++){
+
+            matrix->matrix[x][x] = 1;
+    }
+
+    return matrix;
+}
+//=============================================================================================//
+
+static Matrix_t * Scale_mult_ (Matrix_t * const matrix, double num){
+
+    for(int x =0; x<matrix->tam[0];x++){
+        for(int y=0;y<matrix->tam[1];y++){
+
+            matrix->matrix[x][y] *= num;
+        }
+    }
+
+    return matrix;
+}
+//=============================================================================================//
+
+static Matrix_t * Dot_ (const Matrix_t * const matrix1, const Matrix_t * const matrix2){
+
+
+    if(matrix1->tam[1] != matrix2->tam[0]){
+
+        printf(RED_COLOR"Error: Impossible to multiply matrices with these dimensions :/\n"RESET_COLOR);
+        exit(1);
+    }
+
+    double mat[matrix1->tam[0]][matrix2->tam[1]];
+
+
+    for(int x=0; x<matrix1->tam[0];x++){
+        for(int y=0;y<matrix2->tam[1];y++){
+
+            double num=0;
+            for(int z = 0;z<matrix1->tam[1];z++){
+
+                num += matrix1->matrix[x][z] + matrix2->matrix[z][y];
+            }
+
+            mat[x][y] = num;
+        }
+    }
+
+
+    unsigned int newTam[2] = {matrix1->tam[0], matrix2->tam[1]};
+    Matrix_t * matrixres = Matrix_double_2D_constructor(newTam,"fill", mat);
+
+    return matrixres;
+}
+//=============================================================================================//
+
+static Matrix_t * Transpose_ (Matrix_t * matrix){
+
+    double mat[matrix->tam[1]][matrix->tam[0]];
+    
+
+    for(int x =0; x<matrix->tam[1];x++){
+        for(int y=0;y<matrix->tam[0];y++){
+
+            mat[x][y] = matrix->matrix[y][x];
+        }
+    }
+
+    if(matrix->tam[0] == matrix->tam[1]){
+
+        EqualizeMatrix(mat,matrix->matrix, matrix->tam);
+        return matrix;
+    }
+
+    //=====================================================//
+
+    matrix->matrix = realloc(matrix->matrix,sizeof(double *) * matrix->tam[1]);
+    for(int x=0;x<matrix->tam[1];x++){
+
+        matrix->matrix[x] = realloc(matrix->matrix[x],sizeof(double) * matrix->tam[0]);
+    }
+
+    unsigned int newTam[2] = {matrix->tam[1], matrix->tam[0]};
+
+    EqualizeMatrix(mat, matrix->matrix, newTam);
+    return matrix;
+}
+//=============================================================================================//
+
+static Matrix_t * Add_column_ (Matrix_t * matrix){
+
+    
+    for(int x=0;x<matrix->tam[0];x++){
+
+        matrix->matrix[x] = realloc(matrix->matrix[x], sizeof(double) * (matrix->tam[1] + 1));
+    }
+
+    matrix->tam[1] += 1;
+
+    for(int x=0;x<matrix->tam[0];x++){
+
+        matrix->matrix[x][matrix->tam[1]] = 0;
+    }
+
+
+    return matrix;
+}   
+//=============================================================================================//
+
+static Matrix_t * Add_row_ (Matrix_t * matrix){
+
+
+    
 }
 
