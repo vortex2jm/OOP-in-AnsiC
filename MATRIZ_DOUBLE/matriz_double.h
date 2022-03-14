@@ -62,6 +62,6 @@ typedef struct Matrix_interface_st Matrix_interface_t;
 
 //DIFFERENT CONSTRUCTORS PROTOYPES
 
-Matrix_t * Matrix_double_2D_constructor(unsigned int tam[2], char * type, double ** matrix);
+Matrix_t * Matrix_double_2D_constructor(unsigned int tam[2], char type, double ** matrix);
 
 #endif //MATRIZ_DOUBLE_H!

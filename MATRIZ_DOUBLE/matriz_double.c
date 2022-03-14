@@ -73,14 +73,14 @@ static int EqualSize(unsigned int tam1[2], unsigned int tam2[2]);
 //->fill
 //->zeroed
 //->rand
-Matrix_t * Matrix_double_2D_constructor(unsigned int tam[2], char * type, double ** matrix){
+Matrix_t * Matrix_double_2D_constructor(unsigned int tam[2], char type, double ** matrix){
 
-    if((type == "fill") && (matrix == NULL)){
+    if((type == 'f') && (matrix == NULL)){
 
         printf(RED_COLOR"To construct a fill matrix, you have to pass the last function argument -> double ** <...>\n"RESET_COLOR);
         exit(1);
     }
-    if((type != "fill") && (type != "zeroed") && (type != "rand")){
+    if((type != 'f') && (type != 'z') && (type != 'r')){
 
         printf(RED_COLOR"Constructor error! This type doesn't exist! :/\n"RESET_COLOR);
         exit(1);
@@ -152,12 +152,12 @@ Matrix_t * Matrix_double_2D_constructor(unsigned int tam[2], char * type, double
     } //allocating columns
 
 
-    if(type == "zeroed"){
+    if(type == 'z'){
 
         Put(mat->matrix,mat->tam,0);
     }
 
-    else if(type == "rand"){
+    else if(type == 'r'){
 
         srand(time(NULL));
 
@@ -169,7 +169,7 @@ Matrix_t * Matrix_double_2D_constructor(unsigned int tam[2], char * type, double
         }
     }
 
-    else if(type == "fill"){
+    else if(type == 'f'){
 
         for(int x=0;x<tam[0];x++){
             for(int y=0;y<tam[1];y++){
@@ -366,7 +366,7 @@ static Matrix_t * Dot_ (const Matrix_t * const matrix1, const Matrix_t * const m
 
 
     unsigned int newTam[2] = {matrix1->tam[0], matrix2->tam[1]};
-    Matrix_t * matrixres = Matrix_double_2D_constructor(newTam,"fill", mat);
+    Matrix_t * matrixres = Matrix_double_2D_constructor(newTam,'f', mat);
 
     return matrixres;
 }
@@ -428,6 +428,164 @@ static Matrix_t * Add_column_ (Matrix_t * matrix){
 static Matrix_t * Add_row_ (Matrix_t * matrix){
 
 
+    matrix->matrix = realloc(matrix->matrix,sizeof(double *) * (matrix->tam[0] + 1));
+    matrix->matrix[matrix->tam[0]] = realloc(matrix->matrix[matrix->tam[0]], sizeof(double) * matrix->tam[1]);
+
+    for(int x =0;x<matrix->tam[1];x++){
+
+        matrix->matrix[matrix->tam[0]][x] = 0;
+    }
+
+    matrix->tam[0] += 1;
+
+    return matrix;
+}
+//=============================================================================================//
+
+static Matrix_t * Reverse_horizontal_ (Matrix_t * const matrix){
+
+    double mat[matrix->tam[0]][matrix->tam[1]];
+
+    EqualizeMatrix(matrix->matrix, mat, matrix->tam);
+
+
+    for(int y=0, z=(matrix->tam[1] - 1) ; y<matrix->tam[1] ; y++, z--){
+
+        for(int x =0; x<matrix->tam[0];x++){
+
+            matrix->matrix[x][y] = mat[x][z];
+        }
+    }
+
+    return matrix;
+}
+//=============================================================================================//
+
+static Matrix_t * Reverse_vertical_ (Matrix_t * const matrix){
+
+    unsigned int row = matrix->tam[0];
+    unsigned int column = matrix->tam[1];
+
+    double mat[row][column];
+
+    EqualizeMatrix(matrix->matrix, mat, matrix->tam);
+
+
+    for(int x=0, w=(matrix->tam[0] - 1) ; x<matrix->tam[0] ; x++, w--){
+
+        for(int y=0;y<matrix->tam[1];y++){
+
+            matrix->matrix[x][y] = mat[w][y];
+        }
+    }
+
+    return matrix;
+}
+//=============================================================================================//
+
+static Matrix_t * Sort_ (Matrix_t * const matrix){
+
+    unsigned int size = matrix->tam[0] * matrix->tam[1];
+    double array[size], aux;
+    int count = 0;
+
+    //Assigning matrix to array
+    for(int x=0;x<matrix->tam[0];x++){
+        for(int y =0; y<matrix->tam[1];y++){
+
+            array[count] = matrix->matrix[x][y];
+            count++;
+        }
+    }
+
+    //Sorting array 
+    for(int x=0;x<size;x++){
+        for(int y=x+1;y<=size;y++){
+
+            if(array[y] < array[x]){
+
+                aux = array[x];
+                array[x] = array[y];
+                array[y] = aux;
+            }
+        }
+    }
+
+    //Assigning array to matrix
+    count =0;
+    for(int x=0;x<matrix->tam[0];x++){
+        for(int y =0; y<matrix->tam[1];y++){
+
+            matrix->matrix[x][y] = array[count];
+            count++;
+        }
+    }
+
+    return matrix;
+}
+//=============================================================================================//
+
+static double Max_value_ (const Matrix_t * const matrix){
+
+    unsigned int size = matrix->tam[0] * matrix->tam[1];
+    double array[size], aux;
+    int count = 0;
+
     
+    //Assigning matrix to array
+    for(int x=0;x<matrix->tam[0];x++){
+        for(int y =0; y<matrix->tam[1];y++){
+
+            array[count] = matrix->matrix[x][y];
+            count++;
+        }
+    }
+
+
+    //Putting max value on first index
+    for(int x = 1;x<size;x++){
+
+        if(array[x] > array[0]){
+
+            aux = array[x];
+            array[x] = array[0];
+            array[0] = aux;
+        }
+    }
+
+    return array[0];
+
+}
+//=============================================================================================//
+
+static double Min_value_ (const Matrix_t * const matrix){
+
+    unsigned int size = matrix->tam[0] * matrix->tam[1];
+    double array[size], aux;
+    int count = 0;
+
+    
+    //Assigning matrix to array
+    for(int x=0;x<matrix->tam[0];x++){
+        for(int y =0; y<matrix->tam[1];y++){
+
+            array[count] = matrix->matrix[x][y];
+            count++;
+        }
+    }
+
+
+    //Putting min value on first index
+    for(int x = 1;x<size;x++){
+
+        if(array[x] < array[0]){
+
+            aux = array[x];
+            array[x] = array[0];
+            array[0] = aux;
+        }
+    }
+
+    return array[0];
 }
 
