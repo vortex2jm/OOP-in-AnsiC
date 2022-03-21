@@ -45,7 +45,7 @@ struct Matrix_interface_st{
 
     Matrix_t * (*resize) (Matrix_t * matrix, unsigned int tam[2]);
     Matrix_t * (*ones) (Matrix_t * matrix, unsigned int tam[2]); //VERIFICAR A PRESENÇA DO CONST NO PONTEIRO
-    Matrix_t * (*identity) (Matrix_t * matrix, unsigned int tam[2]);
+    Matrix_t * (*identity) (Matrix_t * matrix, unsigned int tam);
     Matrix_t * (*scale_mult) (Matrix_t * const matrix, double num);
     Matrix_t * (*dot) (const Matrix_t * const matrix1, const Matrix_t * const matrix2);
     Matrix_t * (*transpose) (Matrix_t * matrix); //verificar const no ponteiro
@@ -62,6 +62,6 @@ typedef struct Matrix_interface_st Matrix_interface_t;
 
 //DIFFERENT CONSTRUCTORS PROTOYPES
 
-Matrix_t * Matrix_double_2D_constructor(unsigned int tam[2], char type, double ** matrix);
+Matrix_t * Matrix_double_2D_constructor(unsigned int tam[2], char type, double * matrix);
 
 #endif //MATRIZ_DOUBLE_H!

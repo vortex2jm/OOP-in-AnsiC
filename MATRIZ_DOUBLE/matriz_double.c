@@ -62,7 +62,6 @@ static double Min_value_ (const Matrix_t * const matrix);
 
 //==========ADDITIONAL FUNCTIONS PROTOTYPES=================//
 
-static void EqualizeMatrix(double ** matrix1, double ** matrix2, unsigned int tam[2]);
 static void EqualizeTam(unsigned int tam1[2], unsigned int tam2[2]);
 static void Put(double ** matrix, unsigned int tam[2], double value);
 static int EqualSize(unsigned int tam1[2], unsigned int tam2[2]);
@@ -73,7 +72,7 @@ static int EqualSize(unsigned int tam1[2], unsigned int tam2[2]);
 //->fill
 //->zeroed
 //->rand
-Matrix_t * Matrix_double_2D_constructor(unsigned int tam[2], char type, double ** matrix){
+Matrix_t * Matrix_double_2D_constructor(unsigned int tam[2], char type, double * matrix){
 
     if((type == 'f') && (matrix == NULL)){
 
@@ -171,10 +170,12 @@ Matrix_t * Matrix_double_2D_constructor(unsigned int tam[2], char type, double *
 
     else if(type == 'f'){
 
+        int count =0;
         for(int x=0;x<tam[0];x++){
             for(int y=0;y<tam[1];y++){
 
-                mat->matrix[x][y] = matrix[x][y];
+                mat->matrix[x][y] = matrix[count];
+                count++;
             }
         }
     }
@@ -184,16 +185,7 @@ Matrix_t * Matrix_double_2D_constructor(unsigned int tam[2], char type, double *
 
 //==========================IMPLEMENTING ADDITIONAL FUNCTIONS=======================//
 
-static void EqualizeMatrix(double ** matrix1, double ** matrix2, unsigned int tam[2]){
-
-    for(int x=0;x<tam[0];x++){
-        for(int y=0;y<tam[1];y++){
-
-            matrix2[x][y] = matrix1[x][y];
-        }
-    }
-}
-
+//to equalize arrays
 static void EqualizeTam(unsigned int tam1[2], unsigned int tam2[2]){
 
     for(int x=0;x<2;x++){
@@ -202,6 +194,7 @@ static void EqualizeTam(unsigned int tam1[2], unsigned int tam2[2]){
     }
 }
 
+//to put a number on all sites of matrix
 static void Put(double ** matrix, unsigned int tam[2], double value){
 
     for(int x=0;x<tam[0];x++){
@@ -212,6 +205,7 @@ static void Put(double ** matrix, unsigned int tam[2], double value){
     }
 }
 
+//to verify if 2 matrices have same size
 static int EqualSize(unsigned int tam1[2], unsigned int tam2[2]){
 
     if((tam1[0] == tam2[0]) && (tam1[1] == tam2[1])) return 1;
@@ -294,6 +288,7 @@ static Matrix_t * Ones_ (Matrix_t * matrix, unsigned int tam[2]){
 
 static Matrix_t * Identity_ (Matrix_t * matrix, unsigned int tam){
 
+    //if matrix has same size of integer "tam", only create indentity matrix
     if((matrix->tam[0] == tam) && (matrix->tam[1] == tam)){
 
         Put(matrix->matrix,matrix->tam,0);
@@ -306,7 +301,7 @@ static Matrix_t * Identity_ (Matrix_t * matrix, unsigned int tam){
     }
 
     //=======================================================// 
-
+    //else realloc correct size to create the matrix
     matrix->matrix = realloc(matrix->matrix,sizeof(double *) * tam);
     for(int x=0;x<tam;x++){
         matrix->matrix[x] = realloc(matrix->matrix[x],sizeof(double) * tam);
@@ -348,9 +343,9 @@ static Matrix_t * Dot_ (const Matrix_t * const matrix1, const Matrix_t * const m
         exit(1);
     }
 
-    double mat[matrix1->tam[0]][matrix2->tam[1]];
+    double mat[matrix1->tam[0] * matrix2->tam[1]];
 
-
+    int count = 0;
     for(int x=0; x<matrix1->tam[0];x++){
         for(int y=0;y<matrix2->tam[1];y++){
 
@@ -360,7 +355,8 @@ static Matrix_t * Dot_ (const Matrix_t * const matrix1, const Matrix_t * const m
                 num += matrix1->matrix[x][z] + matrix2->matrix[z][y];
             }
 
-            mat[x][y] = num;
+            mat[count] = num;
+            count++;
         }
     }
 
@@ -375,8 +371,8 @@ static Matrix_t * Dot_ (const Matrix_t * const matrix1, const Matrix_t * const m
 static Matrix_t * Transpose_ (Matrix_t * matrix){
 
     double mat[matrix->tam[1]][matrix->tam[0]];
-    
 
+    //creating an auxiliar transpose matrix
     for(int x =0; x<matrix->tam[1];x++){
         for(int y=0;y<matrix->tam[0];y++){
 
@@ -384,23 +380,38 @@ static Matrix_t * Transpose_ (Matrix_t * matrix){
         }
     }
 
+
+
+    //if they have same sizes, copy them
     if(matrix->tam[0] == matrix->tam[1]){
 
-        EqualizeMatrix(mat,matrix->matrix, matrix->tam);
+        
+        for(int x=0;x<matrix->tam[0];x++){
+            for(int y=0; y<matrix->tam[1];y++){
+
+                matrix->matrix[x][y] = mat[x][y];
+            }
+        }
+
         return matrix;
     }
 
     //=====================================================//
-
+    //else, realloc and next, copy them
     matrix->matrix = realloc(matrix->matrix,sizeof(double *) * matrix->tam[1]);
     for(int x=0;x<matrix->tam[1];x++){
 
         matrix->matrix[x] = realloc(matrix->matrix[x],sizeof(double) * matrix->tam[0]);
     }
 
-    unsigned int newTam[2] = {matrix->tam[1], matrix->tam[0]};
 
-    EqualizeMatrix(mat, matrix->matrix, newTam);
+    for(int x=0;x<matrix->tam[0];x++){
+        for(int y=0; y<matrix->tam[1];y++){
+
+            matrix->matrix[x][y] = mat[x][y];
+        }
+    }
+
     return matrix;
 }
 //=============================================================================================//
@@ -446,7 +457,12 @@ static Matrix_t * Reverse_horizontal_ (Matrix_t * const matrix){
 
     double mat[matrix->tam[0]][matrix->tam[1]];
 
-    EqualizeMatrix(matrix->matrix, mat, matrix->tam);
+    for(int x=0;x<matrix->tam[0];x++){
+        for(int y=0;y<matrix->tam[1];y++){
+
+            mat[x][y] = matrix->matrix[x][y];
+        }
+    }
 
 
     for(int y=0, z=(matrix->tam[1] - 1) ; y<matrix->tam[1] ; y++, z--){
@@ -468,7 +484,12 @@ static Matrix_t * Reverse_vertical_ (Matrix_t * const matrix){
 
     double mat[row][column];
 
-    EqualizeMatrix(matrix->matrix, mat, matrix->tam);
+    for(int x=0;x<matrix->tam[0];x++){
+        for(int y=0;y<matrix->tam[1];y++){
+
+            mat[x][y] = matrix->matrix[x][y];
+        }
+    }
 
 
     for(int x=0, w=(matrix->tam[0] - 1) ; x<matrix->tam[0] ; x++, w--){
@@ -588,4 +609,8 @@ static double Min_value_ (const Matrix_t * const matrix){
 
     return array[0];
 }
+//=============================================================================================//
+
+
+
 
