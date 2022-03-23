@@ -65,7 +65,7 @@ Racional_t * Racional_Constructor(long int num, long int den){
         exit(1);
     }
 
-    static Racional_t * rac;
+    Racional_t * rac = (Racional_t*) malloc(sizeof(Racional_t));
 
     //Constructing super class virtual table
     static NumeroVtbl_t numTab = {
@@ -86,7 +86,7 @@ Racional_t * Racional_Constructor(long int num, long int den){
     };
 
     //Assigning super class on racional class
-    rac = (Racional_t *) Num_constroi((Numero_t *)rac); //downcasting 
+    // rac = (Racional_t *) Num_constroi((Numero_t *)rac); //downcasting 
     
     rac->super.metodo = &numTab;
 
@@ -455,5 +455,5 @@ static void Destruct_ (Racional_t * rac){
 static void destruct_ (Numero_t * num){
 
     free(((Racional_t *)num)->value);
-    free((Numero_t *)num);
+    free((Racional_t*)num);
 }
