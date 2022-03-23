@@ -19,6 +19,7 @@ struct Matrix_st{
     double ** matrix;
 };
 typedef struct Matrix_st Matrix_t;
+typedef struct Matrix_st * Matrix_pt;
 
 
 //=========================================IMPLEMENTING METHODS VIRTUAL TABLE======================//
@@ -56,6 +57,9 @@ struct Matrix_interface_st{
     Matrix_t * (*sort) (Matrix_t * const matrix);
     double (*max_value) (const Matrix_t * const matrix);
     double (*min_value) (const Matrix_t * const matrix);
+    double (*get_value) (const Matrix_t * const matrix, unsigned int place[2]);
+    unsigned int * (*get_size) (const Matrix_t * const matrix);
+    void (*set_value) (Matrix_t * const matrix, unsigned int place[2], double value);
 };  
 
 typedef struct Matrix_interface_st Matrix_interface_t;

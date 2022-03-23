@@ -58,6 +58,9 @@ static Matrix_t * Reverse_vertical_ (Matrix_t * const matrix);
 static Matrix_t * Sort_ (Matrix_t * const matrix);
 static double Max_value_ (const Matrix_t * const matrix);
 static double Min_value_ (const Matrix_t * const matrix);
+static double Get_Value_ (const Matrix_t * const matrix, unsigned int place[2]);
+static unsigned int * Get_Size_(const Matrix_t * const matrix);
+static void Set_Value_ (Matrix_t * const matrix, unsigned int place[2], double value);
 
 
 //==========ADDITIONAL FUNCTIONS PROTOTYPES=================//
@@ -135,7 +138,10 @@ Matrix_t * Matrix_double_2D_constructor(unsigned int tam[2], char type, double *
         .reverse_vertical = &Reverse_vertical_,
         .sort = &Sort_,
         .max_value = &Max_value_,
-        .min_value = &Min_value_
+        .min_value = &Min_value_,
+        .get_size = &Get_Size_,
+        .get_value = &Get_Value_,
+        .set_value = &Set_Value_
     };
 
 
@@ -265,9 +271,15 @@ static Matrix_t * Ones_ (Matrix_t * matrix, unsigned int tam[2]){
 
     //if sizes are equal, only put ones 
 
-    if(EqualSize(matrix->tam,tam)){
+    if(EqualSize(matrix->tam,tam)){             //ERRORR
 
-        Put(matrix->matrix,matrix->tam,1);
+        for(int x=0; x<tam[0];x++){
+            for(int y=0;y<tam[1];y++){
+
+                matrix->matrix[x][y] = 1;
+            }
+        }
+
         return matrix;
     }
 
@@ -280,7 +292,13 @@ static Matrix_t * Ones_ (Matrix_t * matrix, unsigned int tam[2]){
     }
 
     EqualizeTam(tam,matrix->tam);
-    Put(matrix->matrix,matrix->tam,1);
+    
+    for(int x=0; x<tam[0];x++){
+        for(int y=0;y<tam[1];y++){
+
+            matrix->matrix[x][y] = 1;
+        }
+    }
 
     return matrix;
 }
@@ -611,6 +629,350 @@ static double Min_value_ (const Matrix_t * const matrix){
 }
 //=============================================================================================//
 
+static double Get_Value_ (const Matrix_t * const matrix, unsigned int place[2]){
+
+    if(place[0] > matrix->tam[0] || place[1] > matrix->tam[1]){
+
+        printf(RED_COLOR"Error: There's no element in this index\n"RESET_COLOR);
+        exit(1);
+    }
+
+    return matrix->matrix[place[0] - 1][place[1] - 1];
+}
+//=============================================================================================//
+
+static unsigned int * Get_Size_(const Matrix_t * const matrix){
+
+    static unsigned int size[2];
+
+    for(int x =0; x<2;x++){
+
+        size[x] = matrix->tam[x];
+    }
+
+    return size;
+}
+//=============================================================================================//
+
+static void Set_Value_ (Matrix_t * const matrix, unsigned int place[2], double value){
+
+    if(place[0] > matrix->tam[0] || place[1] > matrix->tam[1]){
+
+        printf(RED_COLOR"Error: There's no element in this index\n"RESET_COLOR);
+        exit(1);
+    }
+
+    matrix->matrix[place[0] - 1][place[1] -1] = value;
+}
+//=============================================================================================//
 
 
+//======================================IMPLEMENTING SUPER CLASS METHODS===============================//
 
+
+static Matrix_t * Copy_ (const Matrix_t * const matrix){
+
+    Matrix_t * matrix2 = Matrix_double_2D_constructor(Get_Size_(matrix),'z',NULL);
+
+    for(int x=0;x<matrix->tam[0];x++){
+        for(int y=0;y<matrix->tam[1];y++){
+
+            matrix2->matrix[x][y] = matrix->matrix[x][y];
+        }
+    }
+
+    return matrix2;
+}
+
+static inline Numero_t * copy_ (const Numero_t * const num){
+
+    
+    return (Numero_t *) Copy_((Matrix_t *) num);
+}
+//=============================================================================================//
+
+static Matrix_t * Assign_ (const Matrix_t * const matrix1,  Matrix_t * const matrix2){
+
+    if(!EqualSize(matrix1->tam,matrix2->tam)){
+
+        printf(RED_COLOR"Impossible assign matrices with different sizes!\n"RESET_COLOR);
+        exit(1);
+    }
+
+    for(int x=0; x<matrix1->tam[0];x++){
+        for(int y=0; y<matrix1->tam[1];y++){
+
+            matrix2->matrix[x][y] = matrix1->matrix[x][y];
+        }
+    }
+
+    return matrix2;
+}
+
+
+static inline Numero_t * assign_ (const Numero_t * const num1,  Numero_t * const num2){
+
+    return (Numero_t *) Assign_((Matrix_t*)num1, (Matrix_t*)num2);
+}
+//=============================================================================================//
+
+static Matrix_t * Add_ (const Matrix_t * const matrix1, const Matrix_t * const matrix2, Matrix_t * const matrixres){
+
+    if((!EqualSize(matrix1->tam,matrix2->tam)) || (!EqualSize(matrix1->tam, matrixres->tam))){
+
+        printf(RED_COLOR"Impossible assign matrices with different sizes!\n"RESET_COLOR);
+        exit(1);
+    }
+
+    for(int x=0; x<matrix1->tam[0];x++){
+        for(int y=0; y<matrix1->tam[1];y++){
+
+            matrixres->matrix[x][y] = matrix1->matrix[x][y] + matrix2->matrix[x][y];
+        }
+    }
+
+    return matrixres;
+}
+
+
+static inline Numero_t * add_ (const Numero_t * const num1, const Numero_t * const num2, Numero_t * const res){
+
+
+    return (Numero_t*) Add_((Matrix_t*)num1, (Matrix_t*)num2, (Matrix_t*)res);
+}
+//=============================================================================================//
+
+static Matrix_t * Sub_ (const Matrix_t * const matrix1, const Matrix_t * const matrix2, Matrix_t * const matrixres){
+
+    if((!EqualSize(matrix1->tam,matrix2->tam)) || (!EqualSize(matrix1->tam, matrixres->tam))){
+
+        printf(RED_COLOR"Impossible assign matrices with different sizes!\n"RESET_COLOR);
+        exit(1);
+    }
+
+    for(int x=0; x<matrix1->tam[0];x++){
+        for(int y=0; y<matrix1->tam[1];y++){
+
+            matrixres->matrix[x][y] = matrix1->matrix[x][y] - matrix2->matrix[x][y];
+        }
+    }
+
+    return matrixres;
+}
+
+static inline Numero_t * sub_ (const Numero_t * const num1, const Numero_t * const num2, Numero_t * const res){
+
+    return (Numero_t*) Sub_((Matrix_t*)num1, (Matrix_t*)num2, (Matrix_t*)res);
+}
+//=============================================================================================//
+
+static Matrix_t * Mult_ (const Matrix_t * const matrix1, const Matrix_t * const matrix2, Matrix_t * const matrixres){
+
+    if((!EqualSize(matrix1->tam,matrix2->tam)) || (!EqualSize(matrix1->tam, matrixres->tam))){
+
+        printf(RED_COLOR"Impossible assign matrices with different sizes!\n"RESET_COLOR);
+        exit(1);
+    }
+
+    for(int x=0; x<matrix1->tam[0];x++){
+        for(int y=0; y<matrix1->tam[1];y++){
+
+            matrixres->matrix[x][y] = matrix1->matrix[x][y] * matrix2->matrix[x][y];
+        }
+    }
+
+    return matrixres;
+}
+
+static inline Numero_t * mult_ (const Numero_t * const num1, const Numero_t * const num2, Numero_t * const res){
+
+    return (Numero_t*) Mult_((Matrix_t*)num1, (Matrix_t*)num2, (Matrix_t*)res);
+}
+//=============================================================================================//
+
+static Matrix_t * Div_ (const Matrix_t * const matrix1, const Matrix_t * const matrix2, Matrix_t * const matrixres){
+
+    if((!EqualSize(matrix1->tam,matrix2->tam)) || (!EqualSize(matrix1->tam, matrixres->tam))){
+
+        printf(RED_COLOR"Impossible assign matrices with different sizes!\n"RESET_COLOR);
+        exit(1);
+    }
+
+    for(int x=0; x<matrix1->tam[0];x++){
+        for(int y=0; y<matrix1->tam[1];y++){
+
+            matrixres->matrix[x][y] = matrix1->matrix[x][y] / matrix2->matrix[x][y];
+        }
+    }
+
+    return matrixres;
+}
+
+static inline Numero_t * div_ (const Numero_t * const num1, const Numero_t * const num2, Numero_t * const res){
+
+    return (Numero_t*) Div_((Matrix_t*)num1, (Matrix_t*)num2, (Matrix_t*)res);
+}
+//=============================================================================================//
+
+static Matrix_t * Ac_add_ (Matrix_t * const matrix1, const Matrix_t * const matrix2){
+
+    if(!EqualSize(matrix1->tam,matrix2->tam)){
+
+        printf(RED_COLOR"Impossible assign matrices with different sizes!\n"RESET_COLOR);
+        exit(1);
+    }
+
+    for(int x=0; x<matrix1->tam[0];x++){
+        for(int y=0; y<matrix1->tam[1];y++){
+
+            matrix1->matrix[x][y] = matrix1->matrix[x][y] + matrix2->matrix[x][y];
+        }
+    }
+
+    return matrix1;
+}
+
+static Numero_t * ac_add_ (Numero_t * const num1, const Numero_t * const num2){
+
+    return (Numero_t*) Ac_add_((Matrix_t*)num1, (Matrix_t*)num2);
+}
+//=============================================================================================//
+
+static Matrix_t * Ac_sub_ (Matrix_t * const matrix1, const Matrix_t * const matrix2){
+
+    if(!EqualSize(matrix1->tam,matrix2->tam)){
+
+        printf(RED_COLOR"Impossible assign matrices with different sizes!\n"RESET_COLOR);
+        exit(1);
+    }
+
+    for(int x=0; x<matrix1->tam[0];x++){
+        for(int y=0; y<matrix1->tam[1];y++){
+
+            matrix1->matrix[x][y] -= matrix2->matrix[x][y];
+        }
+    }
+
+    return matrix1;
+}
+
+static Numero_t * ac_sub_ (Numero_t * const num1, const Numero_t * const num2){
+
+    return (Numero_t*) Ac_sub_((Matrix_t*)num1, (Matrix_t*)num2);
+}
+//=============================================================================================//
+
+static Matrix_t * Ac_mult_ (Matrix_t * const matrix1, const Matrix_t * const matrix2){
+
+    if(!EqualSize(matrix1->tam,matrix2->tam)){
+
+        printf(RED_COLOR"Impossible assign matrices with different sizes!\n"RESET_COLOR);
+        exit(1);
+    }
+
+    for(int x=0; x<matrix1->tam[0];x++){
+        for(int y=0; y<matrix1->tam[1];y++){
+
+            matrix1->matrix[x][y] *= matrix2->matrix[x][y];
+        }
+    }
+
+    return matrix1;
+}
+
+static Numero_t * ac_mult_ (Numero_t * const num1, const Numero_t * const num2){
+
+    return (Numero_t*) Ac_mult_((Matrix_t*)num1, (Matrix_t*)num2);
+}
+//=============================================================================================//
+
+static Matrix_t * Ac_div_ (Matrix_t * const matrix1, const Matrix_t * const matrix2){
+
+    if(!EqualSize(matrix1->tam,matrix2->tam)){
+
+        printf(RED_COLOR"Impossible assign matrices with different sizes!\n"RESET_COLOR);
+        exit(1);
+    }
+
+    for(int x=0; x<matrix1->tam[0];x++){
+        for(int y=0; y<matrix1->tam[1];y++){
+
+            matrix1->matrix[x][y] /= matrix2->matrix[x][y];
+        }
+    }
+
+    return matrix1;
+}
+
+static Numero_t * ac_div_ (Numero_t * const num1, const Numero_t * const num2){
+
+    return (Numero_t*) Ac_div_((Matrix_t*)num1, (Matrix_t*)num2);
+}
+//=============================================================================================//
+
+static int Compare_ (const Matrix_t * const matrix1, const Matrix_t * const matrix2){
+
+    if(!EqualSize(matrix1->tam,matrix2->tam)) return 0;
+
+    for(int x=0; x<matrix1->tam[0];x++){
+        for(int y=0; y<matrix1->tam[1];y++){
+
+            if(matrix1->matrix[x][y] != matrix2->matrix[x][y]){
+
+                return 0;
+            }
+        }
+    }
+
+    return 1;
+}
+
+static int compare_ (const Numero_t * const num1, const Numero_t * const num2){
+
+    return Compare_((Matrix_t*)num1, (Matrix_t*)num2);
+}
+//=============================================================================================//
+
+static char * Print_ (const Matrix_t * const matrix){
+
+    static char string[1000];
+
+    for(int x=0; x<matrix->tam[0];x++){
+        for(int y=0; y<matrix->tam[1];y++){
+
+            printf("%.2lf ", matrix->matrix[x][y]);
+            sprintf(string,"%.2lf ", matrix->matrix[x][y]);
+        }
+        printf("\n");
+        sprintf(string,"\n");
+    }
+    printf("\n");
+
+    return string;
+}
+
+static char * print_ (const Numero_t * const num){
+
+    return Print_((Matrix_t*)num);
+}
+//=============================================================================================//
+
+static void Destruct_ (Matrix_t * matrix){
+
+    //for(int x=0;x<matrix->tam[0];x++){
+
+    //    free(matrix->matrix[x]);
+   // }
+    //free(matrix->matrix);
+
+    destruct_((Numero_t*)matrix);
+}
+
+static void destruct_ (Numero_t * num){
+
+    for(int x=0;x< ((Matrix_t*)num)->tam[0];x++){
+
+        free(((Matrix_t*)num)->matrix[x]);
+    }
+   
+}
