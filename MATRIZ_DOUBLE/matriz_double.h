@@ -48,7 +48,7 @@ struct Matrix_interface_st{
     Matrix_t * (*ones) (Matrix_t * matrix, unsigned int tam[2]); //VERIFICAR A PRESENÇA DO CONST NO PONTEIRO
     Matrix_t * (*identity) (Matrix_t * matrix, unsigned int tam);
     Matrix_t * (*scale_mult) (Matrix_t * const matrix, double num);
-    Matrix_t * (*dot) (const Matrix_t * const matrix1, const Matrix_t * const matrix2);
+    Matrix_t * (*dot) (const Matrix_t * const matrix1, const Matrix_t * const matrix2, Matrix_t * const matrixres);
     Matrix_t * (*transpose) (Matrix_t * matrix); //verificar const no ponteiro
     Matrix_t * (*add_column) (Matrix_t * matrix);
     Matrix_t * (*add_row) (Matrix_t * matrix);

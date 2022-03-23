@@ -6,7 +6,7 @@
 #include "matriz_double.h"
 
 #define RED_COLOR "\033[31m"
-#define RESET_COLOR "\033[31m"
+#define RESET_COLOR "\033[0m"
 
 
 //=====================================SUPER CLASS METHODS PROTOTYPES===============================//
@@ -49,7 +49,7 @@ static Matrix_t * Resize_ (Matrix_t * matrix, unsigned int tam[2]);
 static Matrix_t * Ones_ (Matrix_t * matrix, unsigned int tam[2]); //VERIFICAR A PRESENÇA DO CONST NO PONTEIRO
 static Matrix_t * Identity_ (Matrix_t * matrix, unsigned int tam);
 static Matrix_t * Scale_mult_ (Matrix_t * const matrix, double num);
-static Matrix_t * Dot_ (const Matrix_t * const matrix1, const Matrix_t * const matrix2);
+static Matrix_t * Dot_ (const Matrix_t * const matrix1, const Matrix_t * const matrix2, Matrix_t * const matrixres);
 static Matrix_t * Transpose_ (Matrix_t * matrix); //verificar const no ponteiro
 static Matrix_t * Add_column_ (Matrix_t * matrix);
 static Matrix_t * Add_row_ (Matrix_t * matrix);
@@ -88,7 +88,7 @@ Matrix_t * Matrix_double_2D_constructor(unsigned int tam[2], char type, double *
         exit(1);
     }
 
-    static Matrix_t * mat;
+    Matrix_t * mat = (Matrix_t*) malloc(sizeof(Matrix_t));
 
     static NumeroVtbl_t numTab =  {
 
@@ -108,7 +108,7 @@ Matrix_t * Matrix_double_2D_constructor(unsigned int tam[2], char type, double *
     };
 
     //Assigning super class
-    mat = (Matrix_t *) Num_constroi((Numero_t *)mat);
+    // mat = (Matrix_t *) Num_constroi((Numero_t *)mat);
     mat->super.metodo = &numTab;
 
     static Matrix_interface_t matTab = {
@@ -143,12 +143,17 @@ Matrix_t * Matrix_double_2D_constructor(unsigned int tam[2], char type, double *
         .get_value = &Get_Value_,
         .set_value = &Set_Value_
     };
+    mat->methods = &matTab;
 
 
     //ASSIGNING OTHER FIELDS
-    mat->methods = &matTab;
-    mat->tam = tam;
+    mat->tam = (unsigned int*) malloc(sizeof(unsigned int) * 2);
+    for(int x=0;x<2;x++){
 
+        mat->tam[x] = tam[x];
+    }
+
+    // ALLOCATING MATRIX
     mat->matrix = (double **)malloc(sizeof(double *) * tam[0]); //allocating rows
     
     for(int x=0;x<tam[0];x++){
@@ -261,7 +266,7 @@ static Matrix_t * Resize_ (Matrix_t * matrix, unsigned int tam[2]){
         }
     }
 
-    EqualizeTam(matrix->tam,tam);
+    EqualizeTam(tam,matrix->tam);
 
     return matrix;
 }
@@ -273,13 +278,7 @@ static Matrix_t * Ones_ (Matrix_t * matrix, unsigned int tam[2]){
 
     if(EqualSize(matrix->tam,tam)){             //ERRORR
 
-        for(int x=0; x<tam[0];x++){
-            for(int y=0;y<tam[1];y++){
-
-                matrix->matrix[x][y] = 1;
-            }
-        }
-
+        Put(matrix->matrix, matrix->tam,1);
         return matrix;
     }
 
@@ -292,13 +291,7 @@ static Matrix_t * Ones_ (Matrix_t * matrix, unsigned int tam[2]){
     }
 
     EqualizeTam(tam,matrix->tam);
-    
-    for(int x=0; x<tam[0];x++){
-        for(int y=0;y<tam[1];y++){
-
-            matrix->matrix[x][y] = 1;
-        }
-    }
+    Put(matrix->matrix, matrix->tam,1);
 
     return matrix;
 }
@@ -352,7 +345,7 @@ static Matrix_t * Scale_mult_ (Matrix_t * const matrix, double num){
 }
 //=============================================================================================//
 
-static Matrix_t * Dot_ (const Matrix_t * const matrix1, const Matrix_t * const matrix2){
+static Matrix_t * Dot_ (const Matrix_t * const matrix1, const Matrix_t * const matrix2, Matrix_t * const matrixres){
 
 
     if(matrix1->tam[1] != matrix2->tam[0]){
@@ -361,26 +354,26 @@ static Matrix_t * Dot_ (const Matrix_t * const matrix1, const Matrix_t * const m
         exit(1);
     }
 
-    double mat[matrix1->tam[0] * matrix2->tam[1]];
+    if(matrixres->tam[0] != matrix1->tam[0] || matrixres->tam[1] != matrix2->tam[1]){
 
-    int count = 0;
+        matrixres->matrix = realloc(matrixres->matrix, sizeof(double *) * matrix1->tam[0]);
+        for(int x=0;x<matrix2->tam[1];x++){
+            matrixres->matrix[x] = realloc(matrixres->matrix[x], sizeof(double) * matrix2->tam[1]);
+        }
+    }
+
     for(int x=0; x<matrix1->tam[0];x++){
         for(int y=0;y<matrix2->tam[1];y++){
 
             double num=0;
             for(int z = 0;z<matrix1->tam[1];z++){
 
-                num += matrix1->matrix[x][z] + matrix2->matrix[z][y];
+                num += matrix1->matrix[x][z] * matrix2->matrix[z][y];
             }
 
-            mat[count] = num;
-            count++;
+            matrixres->matrix[x][y] = num;
         }
     }
-
-
-    unsigned int newTam[2] = {matrix1->tam[0], matrix2->tam[1]};
-    Matrix_t * matrixres = Matrix_double_2D_constructor(newTam,'f', mat);
 
     return matrixres;
 }
@@ -397,7 +390,6 @@ static Matrix_t * Transpose_ (Matrix_t * matrix){
             mat[x][y] = matrix->matrix[y][x];
         }
     }
-
 
 
     //if they have same sizes, copy them
@@ -418,17 +410,21 @@ static Matrix_t * Transpose_ (Matrix_t * matrix){
     //else, realloc and next, copy them
     matrix->matrix = realloc(matrix->matrix,sizeof(double *) * matrix->tam[1]);
     for(int x=0;x<matrix->tam[1];x++){
-
         matrix->matrix[x] = realloc(matrix->matrix[x],sizeof(double) * matrix->tam[0]);
     }
 
 
-    for(int x=0;x<matrix->tam[0];x++){
-        for(int y=0; y<matrix->tam[1];y++){
+    for(int x=0;x<matrix->tam[1];x++){
+        for(int y=0; y<matrix->tam[0];y++){
 
             matrix->matrix[x][y] = mat[x][y];
         }
     }
+
+    unsigned int aux;
+    aux = matrix->tam[0];
+    matrix->tam[0] = matrix->tam[1];
+    matrix->tam[1] = aux;
 
     return matrix;
 }
@@ -442,14 +438,14 @@ static Matrix_t * Add_column_ (Matrix_t * matrix){
         matrix->matrix[x] = realloc(matrix->matrix[x], sizeof(double) * (matrix->tam[1] + 1));
     }
 
-    matrix->tam[1] += 1;
-
+    
     for(int x=0;x<matrix->tam[0];x++){
 
         matrix->matrix[x][matrix->tam[1]] = 0;
     }
 
-
+    matrix->tam[1] += 1;
+    
     return matrix;
 }   
 //=============================================================================================//
@@ -686,7 +682,7 @@ static Matrix_t * Copy_ (const Matrix_t * const matrix){
 
 static inline Numero_t * copy_ (const Numero_t * const num){
 
-    
+
     return (Numero_t *) Copy_((Matrix_t *) num);
 }
 //=============================================================================================//
@@ -959,12 +955,6 @@ static char * print_ (const Numero_t * const num){
 
 static void Destruct_ (Matrix_t * matrix){
 
-    //for(int x=0;x<matrix->tam[0];x++){
-
-    //    free(matrix->matrix[x]);
-   // }
-    //free(matrix->matrix);
-
     destruct_((Numero_t*)matrix);
 }
 
@@ -972,7 +962,12 @@ static void destruct_ (Numero_t * num){
 
     for(int x=0;x< ((Matrix_t*)num)->tam[0];x++){
 
-        free(((Matrix_t*)num)->matrix[x]);
+        if(((Matrix_t*)num)->matrix[x] != NULL) free(((Matrix_t*)num)->matrix[x]);
     }
-   
+    
+    if(((Matrix_t*)num)->matrix != NULL) free(((Matrix_t*)num)->matrix);
+
+    if(((Matrix_t*)num)->tam != NULL) free(((Matrix_t*)num)->tam );
+
+    if(((Matrix_t*)num) != NULL) free(((Matrix_t*)num));    
 }
