@@ -32,6 +32,12 @@ run:
 	@ echo "\033[0m"
 	@ ./$(NAME_PROGRAM)
 
+outf:
+	@ echo "\033[1;32m"
+	@ echo "Running program & sending output to file..."
+	@ echo "\033[0m"
+	@ ./$(NAME_PROGRAM)>output.txt
+
 test: clean all run
 
 valgrind: 
@@ -44,4 +50,5 @@ clean:
 	@ echo "\033[1;31m"
 	@ echo "Removing temporary files ..."
 	@ rm -rf $(NAME_PROGRAM) $(NAME_PROGRAM_2) $(O_FILES)
+	@ clear
 	@ echo "\033[0m"
