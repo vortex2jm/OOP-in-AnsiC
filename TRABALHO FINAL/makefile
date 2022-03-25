@@ -47,6 +47,6 @@ valgrind:
 clean: 
 	@ echo "\033[1;31m"
 	@ echo "Removing temporary files ..."
-	@ rm -rf $(NAME_PROGRAM) $(O_FILES)
+	@ rm -rf $(NAME_PROGRAM) $(O_FILES) *.txt
 	@ clear
 	@ echo "\033[0m"
