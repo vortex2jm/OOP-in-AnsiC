@@ -32,7 +32,7 @@ static  void   Num_destroi_  (Numero_t * me);
 	}
 
     static struct NumeroVtbl const vtbl = {
-        &Num_copia_,
+       	&Num_copia_,
         &Num_atribui_,
         &Num_soma_,
         &Num_subt_,

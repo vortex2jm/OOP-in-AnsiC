@@ -10,7 +10,7 @@ struct Numero_st;
 
 //STRUCTURE IMPLEMENTATION
 struct Numero_st {
-    struct NumeroVtbl const *metodo; /* ptr p/ os métodos */
+    struct NumeroVtbl const * metodo; /* ptr p/ os métodos */
 } ;
 typedef struct Numero_st 	Numero_t;
 typedef struct Numero_st 	* Numero_pt;
