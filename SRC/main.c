@@ -1,4 +1,3 @@
-//João Paulo Moura Clevelares & Bruno Santos Fernandes
 #include <stdio.h>
 #include <stdlib.h>
 #include "racional.h"
